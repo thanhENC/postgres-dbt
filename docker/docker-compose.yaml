@@ -1,0 +1,34 @@
+services:
+  # ==================================================
+  # OLTP database service: PostgreSQL AdventureWorks database
+  # ==================================================
+  oltp:
+    hostname: oltp
+    container_name: oltp-adw14
+    image: postgres:16-bullseye
+    environment:
+      POSTGRES_USER: ${OLTP_DB_USER:-adventureworks}
+      POSTGRES_PASSWORD: ${OLTP_DB_PASSWORD:-adventureworks}
+      POSTGRES_DB: ${OLTP_DB_NAME:-adventureworks}
+      # custom env vars
+      OLTP_DB_PORT_EXPOSE: ${OLTP_DB_PORT_EXPOSE:-6543}
+    ports:
+      - ${OLTP_DB_PORT_EXPOSE}:5432
+    volumes:
+      - ./volumes/oltp:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 1s
+      timeout: 10s
+      retries: 10
+    # networks:
+    #   - data-network
+
+# ==================================================
+# Networks configuration
+# data-network: external network for data platform services. This network must be created before running the docker-compose file.
+# use `docker network create --driver bridge data-network` to create the network.
+# ==================================================
+# networks:
+#   data-network:
+#     external: true
